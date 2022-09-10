@@ -7,29 +7,29 @@ on:
       - master
 
 jobs:
-  synth:
-    runs-on: [self-hosted, c360]
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Synthesize CDK App
-      uses: Omnichannel360/cdk-synth@master
-      with:
-        app-path: IC/
+#  synth:
+#    runs-on: [self-hosted, c360]
+#    steps:
+#    - name: Checkout
+#      uses: actions/checkout@v2
+#    - name: Synthesize CDK App
+#      uses: Omnichannel360/cdk-synth@master
+#      with:
+#        app-path: IC/
   unittests:
-    needs: synth
+#   needs: synth
     runs-on: [self-hosted, c360]
     steps:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Run python unit tests
-      uses: Omnichannel360/python-unittest-action@master
-  validate-Stellar-health-monitor:
-    runs-on: [self-hosted, c360]
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Validate cloudwatch dashboard template
-      uses: Omnichannel360/cloudformation-validate@master
-      with:
-        template: cw_Monitor/cw_dashboard.yaml
+      uses: Debabrata1980/python-test@master
+#  validate-Stellar-health-monitor:
+#    runs-on: [self-hosted, c360]
+#    steps:
+#    - name: Checkout
+#      uses: actions/checkout@v2
+#    - name: Validate cloudwatch dashboard template
+#      uses: Omnichannel360/cloudformation-validate@master
+#      with:
+#        template: cw_Monitor/cw_dashboard.yaml
