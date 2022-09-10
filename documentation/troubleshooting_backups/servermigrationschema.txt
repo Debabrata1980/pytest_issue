@@ -1,0 +1,9 @@
+
+stellaradmin
+stellardbmigration.cct3lkcjopzt.us-west-2.rds.amazonaws.com
+24c41c2e-e1a2-4d60-a826-2fb0d125520c
+3306
+
+
+mmagentostream
+24c41c2e-e1a2-4d60-a826-2fb0d125520c

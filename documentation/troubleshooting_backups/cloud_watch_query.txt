@@ -1,0 +1,2 @@
+stats sum(TableMapped.0) as M0,sum(TableMapped.1) as M1,sum(TableMapped.2) as M2,sum(TableMapped.3) as M3,sum(TableMapped.4) as M4,sum(TableMapped.5) as M5,sum(TableMapped.6) as M6  by error_schema, error_columns, error_table
+| filter _aws.CloudWatchMetrics.0.Namespace = "StellarStreaming" 

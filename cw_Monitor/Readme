@@ -1,0 +1,5 @@
+This directory contains infrastructure for monitoring resources used in the stellar project
+
+- The cw_dashboard.yaml file is a cloudformation stack for the stellar health monitor
+- the lambda_notify directory contains a cdk app for a lambda function with a logic to process notifications
+  it receives from the alarm SNS topics and send them to a MS teams channel

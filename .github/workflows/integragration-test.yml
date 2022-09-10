@@ -1,0 +1,21 @@
+#name: Run integration tests
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - dev
+
+jobs:
+  load-test-data:
+    runs-on: [self-hosted, c360]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Invoke Lambda to load test data
+      run: |
+        cd .github/scripts/
+        chmod +x ./invoke-lambda.sh
+        echo "Executing "
+#        ./invoke-lambda.sh <lambda-function-name> payload.json
+      shell: bash

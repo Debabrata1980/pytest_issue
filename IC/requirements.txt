@@ -1,0 +1,10 @@
+-e .
+aws-cdk.aws-lambda==1.91.0
+aws_cdk.aws_events_targets==1.91.0
+aws_cdk.aws_lambda_event_sources==1.91.0
+aws_cdk.aws_sns==1.91.0
+
+
+
+
+GitPython

@@ -1,0 +1,27 @@
+name: Copy DB json files to S3
+
+on:
+  push:
+    branches:
+      - dev
+      - master
+    paths:
+      - 'IC/schemas/db_*.json'
+
+jobs:
+  copy-json:
+    runs-on: [self-hosted, c360]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Copy DB json files to S3
+      run: |
+        branch="${GITHUB_REF#refs/heads/}"
+        if [ "${branch}" == "master" ]; then
+          branch="prod"
+        fi
+        s3_path="s3://s3-stellar-stream/schema/${branch}/"
+        echo "Copying DB json files to ${s3_path}"
+        aws s3 cp IC/schemas/db_schemas.json ${s3_path}
+        aws s3 cp IC/schemas/db_tables.json ${s3_path}
+      shell: bash

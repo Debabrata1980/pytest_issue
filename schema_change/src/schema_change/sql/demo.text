@@ -1,0 +1,6 @@
+drop table {country}.demo;
+drop table {country}.demo;
+CREATE TABLE {country}.demo(
+    col1 integer,
+    col2 integer, 
+    CONSTRAINT {country}_demo_pkey PRIMARY KEY (col1));

@@ -1,0 +1,1 @@
+ALTER TABLE {country}.sales_order  ALTER COLUMN ext_order_id TYPE ;

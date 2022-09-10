@@ -1,0 +1,518 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "code defines the dashboards and alarms for monitoring the Stellar streaming project"
+
+Resources:
+
+  # SNS topic for Kinesis related issues
+  "KinesisAlarmTopic": {
+    "Type": "AWS::SNS::Topic",
+    "Properties": {
+      "Subscription": [ {
+        "Endpoint": "donald.aladmbo@hp.com",
+        "Protocol": "email"
+      },
+        {
+          "Endpoint": "pranav.bathi.math@hp.com",
+          "Protocol": "email"
+        },
+        {
+          "Endpoint": "philip.abraham@hp.com",
+          "Protocol": "email"
+        },
+        {
+          "Endpoint": "manish.singh@hp.com",
+          "Protocol": "email"
+        },
+        {
+          "Endpoint": "guruprasad.davangave@hp.com",
+          "Protocol": "email"
+        }]
+    }
+  }
+# SNS topic for lambda-consumer related issues
+  "LambdaAlarmTopic": {
+    "Type": "AWS::SNS::Topic",
+    "Properties": {
+      "Subscription": [ {
+        "Endpoint": "donald.aladmbo@hp.com",
+        "Protocol": "email" },
+        {
+          "Endpoint": "pranav.bathi.math@hp.com",
+          "Protocol": "email"
+        },
+        {
+          "Endpoint": "philip.abraham@hp.com",
+          "Protocol": "email"
+        },
+        {
+          "Endpoint": "manish.singh@hp.com",
+          "Protocol": "email"
+        },
+        {
+          "Endpoint": "guruprasad.davangave@hp.com",
+          "Protocol": "email"
+        }
+      ]
+    }
+  }
+# SNS topic for Database related issues
+  "DatabaseAlarmTopic": {
+    "Type": "AWS::SNS::Topic",
+    "Properties": {
+      "Subscription": [ 
+        {
+          "Endpoint": "donald.aladmbo@hp.com",
+          "Protocol": "email"
+        },
+        {
+          "Endpoint": "pranav.bathi.math@hp.com",
+          "Protocol": "email"
+        },
+        {
+          "Endpoint": "philip.abraham@hp.com",
+          "Protocol": "email"
+        },
+        {
+          "Endpoint": "manish.singh@hp.com",
+          "Protocol": "email"
+        },
+        {
+          "Endpoint": "guruprasad.davangave@hp.com",
+          "Protocol": "email"
+        }
+      ]
+    }
+  }
+# Kinesis alarm for iterator age>12 hrs
+  "KinesisIteratorAgeAlarm": {
+    "Type": "AWS::CloudWatch::Alarm",
+    "Properties": {
+      "AlarmName": "Stellar-kinesis-stream@50-percent-capacity",
+      "AlarmDescription": "Old data has been in kinesis for over 6 hrs. Please increase retention period",
+      "ActionsEnabled": true,
+      "OKActions": [ ],
+      "AlarmActions": [
+        {"Ref":"KinesisAlarmTopic"}
+      ],
+      "InsufficientDataActions": [ ],
+      "MetricName": "GetRecords.IteratorAgeMilliseconds",
+      "Namespace": "AWS/Kinesis",
+      "Statistic": "Maximum",
+      "Dimensions": [
+        {
+          "Name": "StreamName",
+          "Value": "magento-dev"
+        }
+      ],
+      "Period": 60,
+      "EvaluationPeriods": 1,
+      "DatapointsToAlarm": 1,
+      "Threshold": 43200000,
+      "ComparisonOperator": "GreaterThanThreshold",
+      "TreatMissingData": "missing"
+    }
+  }
+
+# This Alarm will send notice to the SNS topic for Alarms if lambda fxn success rate is less than 95%
+  "CheckLambdaAlarm": {
+    "Type": "AWS::CloudWatch::Alarm",
+    "Properties": {
+      "AlarmName": "CheckLambdaAlarm",
+      "ActionsEnabled": true,
+      "OKActions": [ ],
+      "AlarmActions": [{
+        "Ref": "LambdaAlarmTopic"
+      }],
+      "InsufficientDataActions": [ ],
+      "EvaluationPeriods": 1,
+      "DatapointsToAlarm": 1,
+      "Threshold": 95,
+      "ComparisonOperator": "LessThanOrEqualToThreshold",
+      "TreatMissingData": "missing",
+      "Metrics": [
+        {
+          "Id": "availability",
+          "Label": "Success rate (%)",
+          "ReturnData": true,
+          "Expression": "100 - 100 * errors / MAX([errors, invocations])"
+        },
+        {
+          "Id": "errors",
+          "ReturnData": false,
+          "MetricStat": {
+            "Metric": {
+              "Namespace": "AWS/Lambda",
+              "MetricName": "Errors",
+              "Dimensions": [
+                {
+                  "Name": "FunctionName",
+                  "Value": "stellar_stream_dev"
+                }
+              ]
+            },
+            "Period": 60,
+            "Stat": "Sum"
+          }
+        },
+        {
+          "Id": "invocations",
+          "ReturnData": false,
+          "MetricStat": {
+            "Metric": {
+              "Namespace": "AWS/Lambda",
+              "MetricName": "Invocations",
+              "Dimensions": [
+                {
+                  "Name": "FunctionName",
+                  "Value": "stellar_stream_dev"
+                }
+              ]
+            },
+            "Period": 60,
+            "Stat": "Sum"
+          }
+        }
+      ]
+    }
+  }
+# This Alarm will send notice to the SNS topic for Alarms if lambda fxn is throttled more than 2 times in 60 seconds
+  "LambdaThrottledAlarm": {
+    "Type": "AWS::CloudWatch::Alarm",
+    "Properties": {
+        "AlarmName": "Lambda Throttling",
+        "ActionsEnabled": true,
+        "OKActions": [],
+        "AlarmActions": [ {
+            "Ref": "LambdaAlarmTopic"
+        }],
+        "InsufficientDataActions": [],
+        "MetricName": "Throttles",
+        "Namespace": "AWS/Lambda",
+        "Statistic": "Sum",
+        "Dimensions": [
+            {
+                "Name": "FunctionName",
+                "Value": "stellar_stream_dev"
+            }
+        ],
+        "Period": 60,
+        "EvaluationPeriods": 1,
+        "DatapointsToAlarm": 1,
+        "Threshold": 2,
+        "ComparisonOperator": "GreaterThanThreshold",
+        "TreatMissingData": "missing"
+    }
+}
+
+  CWDashBoard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: Stellar-Health-Monitor
+      #  The following widgets are available on this dashboard
+      # 1 iteratorAge in milliseconds
+      # 2 PUT/GET Records calls throttled per given time period
+      # 3 sum of failed PUT records
+      # 4 Sum of incoming records
+      DashboardBody: '{
+        "start": "-PT12H",
+        "periodOverride": "auto",
+        "widgets": [
+          {
+            "type": "metric",
+            "width": 8,
+            "height": 6,
+            "y": 0,
+            "x": 0,
+            "properties": {
+              "metrics": [
+                [ "AWS/Kinesis", "GetRecords.IteratorAgeMilliseconds", "StreamName", "magento-dev", { "stat": "Maximum" } ]
+              ],
+              "stat": "Average",
+              "title": "GetRecords iterator age - (maximum duration of oldest record in stream in Milliseconds)",
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "us-west-2",
+              "period": 60,
+              "yAxis": {
+                "left": {
+                  "min": 0
+                }
+              }
+            }
+          },
+          {
+            "type": "metric",
+            "width": 8,
+            "height": 6,
+            "y": 0,
+            "x": 8,
+            "properties": {
+              "metrics": [
+                [ "AWS/Kinesis", "ReadProvisionedThroughputExceeded", "StreamName", "magento-dev" ],
+                [ "AWS/Kinesis", "WriteProvisionedThroughputExceeded", "StreamName", "magento-dev" ]
+              ],
+              "stat": "Average",
+              "title": "READ/WRITE record throughput exceeded - average (Count)",
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "us-west-2",
+              "period": 60,
+              "yAxis": {
+                "left": {
+                  "min": 0
+                }
+              }
+            }
+          },
+          {
+            "type": "metric",
+            "width": 8,
+            "height": 6,
+            "y": 0,
+            "x": 16,    
+            "properties": {
+              "metrics": [
+                [ { "expression": "(m13/m12) * 100", "id": "e2", "period": 60, "label": "PutRecords failed records - average (Percent)", "region": "us-west-2", "stat": "Sum" } ],
+                [ "AWS/Kinesis", "PutRecords.FailedRecords", "StreamName", "magento-dev", { "id": "m13", "visible": false } ],
+                [ ".", "PutRecords.TotalRecords", ".", ".", { "id": "m12", "visible": false } ]
+              ],
+              "stat": "Average",
+              "title": "PutRecords failed records - count",
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "us-west-2",
+              "period": 60,
+              "yAxis": {
+                "left": {
+                  "min": 0
+                }
+              }
+            }
+          },
+          {
+            "type": "metric",
+            "width": 8,
+            "height": 6,
+            "y": 9,
+            "x": 0,
+            "properties": {
+              "metrics": [
+                [ "AWS/Kinesis", "IncomingRecords", "StreamName", "magento-dev" ],
+                [ "AWS/Kinesis", "GetRecords.Records", "StreamName", "magento-dev" ]
+              ],
+              "stat": "Sum",
+              "title": "IncomingRecords/OutgoingRecords - (Sum)",
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "us-west-2",
+              "period": 60,
+              "yAxis": {
+                "left": {
+                  "min": 0
+                }
+              }
+            }
+          },
+                   {
+            "type": "metric",
+            "width": 16,
+            "height": 6,
+            "y": 9,
+            "x": 8,
+            "properties": {
+              "metrics": [
+                [ "AWS/Kinesis", "IncomingRecords", "StreamName", "magento-dev" ],
+                [ "AWS/Kinesis", "GetRecords.Records", "StreamName", "magento-dev" ]
+              ],
+              "stat": "Sum",
+              "title": "records in vs Records over last hour",
+              "view": "singleValue",
+              "stacked": false,
+              "region": "us-west-2",
+              "period": 3600,
+              "yAxis": {
+                "left": {
+                  "min": 0
+                }
+              }
+            }
+          },
+          {
+            "type": "metric",
+            "width": 8,
+            "height": 6,
+            "y": 10,
+            "x": 0,
+            "properties": {
+              "metrics": [
+                [ "AWS/Lambda", "Invocations", "FunctionName", "stellar_stream_dev", { "stat": "Sum" } ]
+              ],
+              "stat": "Sum",
+              "title": "LambdaInvocationsCount-(Sum)",
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "us-west-2",
+              "period": 60,
+              "yAxis": {
+                "left": {
+                  "min": 0
+                }
+              }
+            }
+          },
+          {
+            "type": "metric",
+            "width": 8,
+            "height": 6,
+            "properties": {
+              "metrics": [
+                [ "AWS/Lambda", "ConcurrentExecutions", "FunctionName", "stellar_stream_dev" ]
+              ],
+              "stat": "Maximum",
+              "title": "ConcurrentLambdaExecutions-Count",
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "us-west-2",
+              "period": 60,
+              "yAxis": {
+                "left": {
+                  "min": 0
+                }
+              }
+            }
+          },
+          {
+            "type": "metric",
+            "width": 8,
+            "height": 6,
+            "properties": {
+              "metrics": [
+                [ "AWS/Lambda", "Errors", "FunctionName", "stellar_stream_dev", { "id": "errors", "stat": "Sum", "color": "#d13212" } ],
+                [ ".", "Invocations", ".", ".", { "id": "invocations", "stat": "Sum", "visible": false } ],
+                [ { "expression": "100 - 100 * errors / MAX([errors, invocations])", "label": "Success rate (%)", "id": "availability", "yAxis": "right", "region": "us-west-2" } ]
+              ],
+              "stat": "Sum",
+              "title": "lambdaErrorCount and SuccessRate (stellar_stream_dev)",
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "us-west-2",
+              "period": 60,
+              "yAxis": {
+                "right": {
+                  "max": 100
+                }
+              }
+            }
+          },
+          {
+            "type": "metric",
+            "width": 8,
+            "height": 6,
+            "properties": {
+              "metrics": [
+                  [ "AWS/Lambda", "IteratorAge", "FunctionName", "stellar_stream_dev", { "stat": "Maximum" } ]
+              ],
+              "stat": "Maximum",
+              "title": "LambdaIteratorAge-(stellar_stream_dev)",
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "us-west-2",
+              "period": 60
+                }
+              },
+          {
+            "type": "metric",
+            "width": 8,
+            "height": 6,
+            "properties": {
+              "metrics": [
+                   [ "AWS/Lambda", "Throttles", "FunctionName", "stellar_stream_dev", { "stat": "Sum" } ]
+              ],
+              "stat": "Sum",
+              "title": "Throttles-(stellar_stream_dev)",
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "us-west-2",
+              "period": 60
+                }
+              },
+          {
+            "type": "metric",
+            "width": 8,
+            "height": 6,
+            "properties": {
+              "metrics": [
+                   [ "AWS/RDS", "WriteLatency", "DBInstanceIdentifier", "stellarstream-v1-instance-1" ]
+              ],
+              "stat": "Sum",
+              "title": "WriteLatency in seconds-(PostgresDB WriterNode)",
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "us-west-2",
+              "period": 60
+                }
+              },
+          {
+            "type": "metric",
+            "width": 8,
+            "height": 6,
+            "properties": {
+              "metrics": [
+                   [ "AWS/RDS", "DiskQueueDepth", "DBInstanceIdentifier", "stellarstream-v1-instance-1" ]
+              ],
+              "stat": "Sum",
+              "title": "DiskQueueDepth-(Number of read/writes operations waiting in line )",
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "us-west-2",
+              "period": 60
+                }
+              },
+          {
+            "type": "metric",
+            "width": 8,
+            "height": 6,
+            "properties": {
+              "metrics": [
+                    [ "AWS/RDS", "WriteIOPS", "DBInstanceIdentifier", "stellarstream-v1-instance-1" ]
+              ],
+              "stat": "Sum",
+              "title": "WriteIOPS-Counts per second",
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "us-west-2",
+              "period": 60
+                }
+              },
+          {
+            "type": "metric",
+            "width": 8,
+            "height": 6,
+            "properties": {
+              "metrics": [
+                     [ "AWS/RDS", "WriteThroughput", "DBInstanceIdentifier", "stellarstream-v1-instance-1" ]
+              ],
+              "stat": "Sum",
+              "title": "WriteThroughput-Bytes per second",
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "us-west-2",
+              "period": 60
+                }
+              },
+                        {
+            "type": "log",
+            "width": 16,
+            "height": 6,
+            "y": 10,
+            "x": 8,
+            "properties": {
+              "query": "SOURCE /aws/lambda/stellar_stream_dev | fields @timestamp, @message\n| filter @message like \"Error\"\n| sort @timestamp desc\n| limit 100",
+              "region": "us-east-1",
+              "title": "sample logs of lambda errors over the last hour",
+              "view": "table",
+              "period": 3600
+            }
+          }
+        ]
+      }'

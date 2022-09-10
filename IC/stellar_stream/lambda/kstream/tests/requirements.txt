@@ -1,0 +1,8 @@
+-e .
+boto3==1.24.15
+mock==4.0.3
+moto==3.1.16
+
+
+
+GitPython

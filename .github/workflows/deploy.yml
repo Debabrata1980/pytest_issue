@@ -1,0 +1,39 @@
+name: CDK app deploy
+
+on:
+  push:
+    branches:
+      - dev
+      - master
+
+jobs:
+  deploy-app:
+    runs-on: [self-hosted, c360]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Synthesize CDK App
+      uses: Omnichannel360/cdk-synth@master
+      with:
+        app-path: IC/
+    - name: Deploy CDK App
+      uses: Omnichannel360/cdk-deploy@master
+      with:
+        app-path: IC/
+
+  deploy-Stellar-health-monitor:
+    runs-on: [self-hosted, c360]
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+    - name: Validate cloudwatch dashboard template
+      uses: Omnichannel360/cloudformation-validate@master
+      with:
+        template: cw_Monitor/cw_dashboard.yaml
+    - name: Deploy cloudwatch dashboard template
+      uses: Omnichannel360/cloudformation-deploy@master
+      with:
+        template: cw_Monitor/cw_dashboard.yaml
+        stack-name: stellar-cw-dashboar-stack
+        region: us-west-2
+        iam-capabilities: CAPABILITY_NAMED_IAM
