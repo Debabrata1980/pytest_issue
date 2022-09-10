@@ -22,7 +22,7 @@ class MyUnitTest(unittest.TestCase):
     S3_FILE_LOCATION_NEW_SCHEMA = f'{PATH_NEW_SCHEMA}/{FILE_NAME}'
     FILE_LOCATION_DOWNLOAD = f'{PATH_DOWNLOAD}/{FILE_NAME}'
     print(os.getcwd())
-    
+
     @mock_s3
     def test_archive_s3(self):
         from rollback import archive
