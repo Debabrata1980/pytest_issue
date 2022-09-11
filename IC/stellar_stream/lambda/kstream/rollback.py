@@ -7,11 +7,11 @@ Rollback would be required in case of changes in schema or query errors
 import json
 from enum import Enum
 import boto3
-# import os
-# from IC.stack_params import PARAMS
+import os
+from IC.stack_params import PARAMS
 
 env_name = 'DEV'  # os.environ['ENV']
-region = 'us-east-1'  # PARAMS[env_name]['region']
+region = PARAMS[env_name]['region']
 # s3 = boto3.resource('s3', region_name=region)
 # BUCKET = os.environ['S3_BUCKET']
 s3_client = boto3.client("s3")
