@@ -29,6 +29,7 @@ class MyUnitTest(unittest.TestCase):
         conn = boto3.resource('s3', region_name=region)
         conn.create_bucket(Bucket=self.BUCKET_NAME)
         print(self.FILE_LOCATION)
+        print("current dir", os.getcwd())
         f = open(self.FILE_LOCATION)
         resp = archive(record=json.load(f), record_name=self.S3_FILE_LOCATION_ARCH, BUCKET=self.BUCKET_NAME)
         respone = resp["ResponseMetadata"]["HTTPStatusCode"]
