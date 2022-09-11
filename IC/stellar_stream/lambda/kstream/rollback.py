@@ -8,7 +8,7 @@ import json
 from enum import Enum
 import boto3
 # import os
-from IC.stack_params import PARAMS
+from stack_params import PARAMS
 
 env_name = 'DEV'  # os.environ['ENV']
 region = PARAMS[env_name]['region']
