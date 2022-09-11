@@ -13,7 +13,7 @@ class MyUnitTest(unittest.TestCase):
 
     BUCKET_NAME = "Stellar_Test_Buck"
     FILE_NAME = "sample_json.json"
-    PATH = "./file_bkp"
+    PATH = "./tests/file_bkp"
     PATH_ARCH = "./arch"
     PATH_NEW_SCHEMA = "./new_schema"
     PATH_DOWNLOAD = "./schema"
