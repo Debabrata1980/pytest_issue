@@ -25,7 +25,7 @@ class MyUnitTest(unittest.TestCase):
 
     @mock_s3
     def test_archive_s3(self):
-        from rollback import archive
+        from kstream.rollback import archive
         conn = boto3.resource('s3', region_name=region)
         conn.create_bucket(Bucket=self.BUCKET_NAME)
         print(self.FILE_LOCATION)
@@ -36,7 +36,7 @@ class MyUnitTest(unittest.TestCase):
 
     @mock_s3
     def test_send_record_to_s3(self):
-        from rollback import CErrorTypes, send_record_to_s3
+        from kstream.rollback import CErrorTypes, send_record_to_s3
         conn = boto3.resource('s3', region_name=region)
         conn.create_bucket(Bucket=self.BUCKET_NAME)
         f = open(self.FILE_LOCATION)
