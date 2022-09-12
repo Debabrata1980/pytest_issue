@@ -10,7 +10,6 @@ env_name = 'DEV'  # os.environ['ENV']
 region = PARAMS[env_name]['region']
 
 
-
 class MyUnitTest(unittest.TestCase):
 
     BUCKET_NAME = "Stellar_Test_Buck"
