@@ -3,10 +3,13 @@ from moto import mock_s3
 import unittest
 import json
 import os
-from IC.stack_params import PARAMS
+import sys
+from stack_params import PARAMS
 
 env_name = 'DEV'  # os.environ['ENV']
 region = PARAMS[env_name]['region']
+print(sys.path)
+print(os.path.dirname(__file__))
 
 
 class MyUnitTest(unittest.TestCase):
