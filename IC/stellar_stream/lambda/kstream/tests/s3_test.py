@@ -8,8 +8,7 @@ from stack_params import PARAMS
 
 env_name = 'DEV'  # os.environ['ENV']
 region = PARAMS[env_name]['region']
-print(sys.path)
-print(os.path.dirname(__file__))
+
 
 
 class MyUnitTest(unittest.TestCase):
@@ -25,6 +24,8 @@ class MyUnitTest(unittest.TestCase):
     S3_FILE_LOCATION_NEW_SCHEMA = f'{PATH_NEW_SCHEMA}/{FILE_NAME}'
     FILE_LOCATION_DOWNLOAD = f'{PATH_DOWNLOAD}/{FILE_NAME}'
     print(os.getcwd())
+    print(sys.path)
+    print(os.path.dirname(__file__))
 
     @mock_s3
     def test_archive_s3(self):
