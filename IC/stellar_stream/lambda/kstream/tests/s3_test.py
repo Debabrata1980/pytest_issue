@@ -4,7 +4,7 @@ import unittest
 import json
 import os
 import sys
-from IC.stack_params import PARAMS
+from stack_params import PARAMS
 
 env_name = 'DEV'  # os.environ['ENV']
 region = PARAMS[env_name]['region']
